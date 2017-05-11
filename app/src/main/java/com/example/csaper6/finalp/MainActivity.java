@@ -3,12 +3,16 @@ package com.example.csaper6.finalp;
 import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.peak.salut.Callbacks.SalutCallback;
+import com.peak.salut.Callbacks.SalutDataCallback;
+import com.peak.salut.Salut;
 import com.peak.salut.SalutDataReceiver;
 import com.peak.salut.SalutServiceData;
 
@@ -17,41 +21,44 @@ import java.security.KeyPair;
 import javax.crypto.SealedObject;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SalutDataCallback{
 
     private TextView one, two;
     private EditText three;
     private Button button;
+
+    public static final String TAG = MainActivity.class.getSimpleName();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        salut();
-
         one = (TextView) findViewById(R.id.one);
         two = (TextView) findViewById(R.id.two);
         three = (EditText) findViewById(R.id.three);
         button = (Button) findViewById(R.id.button);
+
+        SalutDataReceiver dataReceiver = new SalutDataReceiver(MainActivity.this, MainActivity.this);
+        SalutServiceData serviceData = new SalutServiceData("sas", 50489, "hello");
+
+        Salut network = new Salut(dataReceiver, serviceData, new SalutCallback() {
+            @Override
+            public void call() {
+                Log.e(TAG, "Sorry, but this device does not support WiFi Direct.");
+            }
+        });
+
+
 
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if(adapter != null){
             Toast.makeText(MainActivity.this, "done", Toast.LENGTH_SHORT).show();
         }
 
-
-
-
-
-
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
-
                 rsa hello = new rsa();
                 KeyPair key = hello.MakeKeys();
                 SealedObject message = hello.enCrypt(key, three.getText().toString());
@@ -60,34 +67,35 @@ public class MainActivity extends AppCompatActivity {
                 one.setText(key.getPublic().toString());
 
 
+
+
+
             }
         });
-
-
-
-
-
-
-
-
-
-
-        //hi.check();
-
-        main();
-
-
-
     }
 
-    private void salut() {
-        SalutDataReceiver dataReceiver = new SalutDataReceiver(MainActivity.class, null);
-        SalutServiceData serviceData = new SalutServiceData("sas", 50489, superAwesomeUser.name);
+//    private void salut() {
+//        setContentView(R.layout.activity_salut_try);
+//
+//        SalutDataReceiver dataReceiver = new SalutDataReceiver(MainActivity.this, MainActivity.this);
+//        SalutServiceData serviceData = new SalutServiceData("sas", 50489, "hello");
+//
+//        Salut network = new Salut(dataReceiver, serviceData, new SalutCallback() {
+//            @Override
+//            public void call() {
+//                Log.e(TAG, "Sorry, but this device does not support WiFi Direct.");
+//            }
+//        });
+//
+//
+//    }
+
+
+    @Override
+    public void onDataReceived(Object o) {
 
     }
-
-    public void main() {
-
+}
 
 
 
@@ -97,6 +105,17 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
+
+
+
+
+
+
+
+
+//region Description
 //        button.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -195,9 +214,5 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 //
-//
+//endregion
 
-
-
-    }
-}
